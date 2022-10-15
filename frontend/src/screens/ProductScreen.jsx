@@ -1,21 +1,46 @@
-import React from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import { Row, Col, Image, ListGroup, Card, Button } from 'react-bootstrap'
 import Rating from '../components/Rating'
-import products from '../products'
+import axios from 'axios'
 
 const ProductScreen = () => {
+  const navigate = useNavigate()
+  const [product, setProduct] = useState({})
   // Params toma los parametros de la url. En este caso queremos acceder al parametro    /:id que se asignó en la ruta del producto
   const params = useParams()
-  const product = products.find((p) => p._id === params.id)
+  // const product = products.find((p) => p._id === params.id)
+
+  // Ejecuta las instrucciones dentro del arrow function cuando el componente carga
+  // useEffect se usa para hacer peticiones al backend
+  useEffect(
+    () => {
+      const fecthProduct = async () => {
+        // Se crea una funcion asincrona para traer los productos del backend con la ruta /api/products
+        // se desestructura la respuesta res con {data}
+        const { data } = await axios.get(`/api/products/${params.id}`)
+
+        // Se asigna products con la funcion setProducts igual a la data traida del backend
+        setProduct(data)
+      }
+
+      // Se llama la función para que se ejecute cuando el componente se cargue
+      fecthProduct()
+    },
+    // Este array representa las dependecias del useEffect, cada vez que una variable dentro de este array cambia, se ejecuta el useEffect
+    [params.id]
+  )
+
   return (
     <>
-      <Link
-        className='btn btn-light my-3'
-        to='/'
+      <Button
+        className='btn-light my-3'
+        type='button'
+        // navigate(-1) me lleva una página hacia atrás en el historial
+        onClick={() => navigate(-1)}
       >
         Go back
-      </Link>
+      </Button>
       <Row>
         <Col md={6}>
           <Image
